@@ -5,3 +5,18 @@ services:
     build:
       context: ../../
     command: --config modified-config.json
+    networks:
+     noisy_net:
+#For this macvlan network to work and scale,
+#promsicuous mode needs to be enabled:
+#ie: ifconfig enp0s3 promisc, and enabled in virtualbox network properties
+networks:
+  noisy_net:
+    driver: macvlan
+    driver_opts:
+      parent: enp0s3
+    ipam:
+      config:
+      - subnet: 192.168.90.0/24
+        gateway: 192.168.90.1
+        ip_range: 192.168.90.210/28
