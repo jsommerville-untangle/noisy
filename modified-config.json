@@ -3,6 +3,7 @@
     "min_sleep": 3,
     "max_sleep": 6,
     "timeout": false,
+    "dig_mode": true,
     "root_urls": [
         "https://www.reddit.com",
         "https://www.yahoo.com",

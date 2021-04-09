@@ -1,9 +1,11 @@
 import argparse
 import datetime
+import pydig
 import json
 import logging
 import random
 import re
+import subprocess
 import sys
 import time
 
@@ -49,6 +51,19 @@ class Crawler(object):
         response = requests.get(url, headers=headers, timeout=5)
 
         return response
+
+    def _dns_resolve(self, url):
+        """
+        Runs the dns resolver against a url
+        :param url: the url to visit
+        :return: the dig result
+        """
+        logging.debug("dns resolve against %s\n" % url)
+        a_records = pydig.query(url, 'A')
+        cnames = pydig.query(url, 'CNAME')
+        ns_record = pydig.query(url, 'NS')
+
+        logging.info("A records:%s, CNames: %s, NS Records:%s\n" % (a_records, cnames, ns_record))
 
     @staticmethod
     def _normalize_link(link, root_url):
@@ -225,17 +240,24 @@ class Crawler(object):
     def crawl(self):
         """
         Collects links from our root urls, stores them and then calls
-        `_browse_from_links` to browse them
+        `_browse_from_links` to browse them, if dig_mode is enabled,
+        then only run the dns query on the top domain
         """
         self._start_time = datetime.datetime.now()
 
         while True:
             url = random.choice(self._config["root_urls"])
+
             try:
-                body = self._request(url).content
-                self._links = self._extract_urls(body, url)
-                logging.debug("found {} links".format(len(self._links)))
-                self._browse_from_links()
+
+                if(self._config["dig_mode"]):
+                    logging.debug("running dig on %s\n", url)
+                    self._dns_resolve(url)
+                else:
+                    body = self._request(url).content
+                    self._links = self._extract_urls(body, url)
+                    logging.debug("found {} links".format(len(self._links)))
+                    self._browse_from_links()
 
             except requests.exceptions.RequestException:
                 logging.warn("Error connecting to root url: {}".format(url))

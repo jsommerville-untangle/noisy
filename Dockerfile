@@ -1,4 +1,4 @@
-FROM python:2.7-alpine
+RUN apk update && apk add bind-tools
 WORKDIR /
 COPY requirements.txt .
 RUN pip install -r requirements.txt

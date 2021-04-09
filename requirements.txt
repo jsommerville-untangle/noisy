@@ -1,1 +1,2 @@
-requests>=2.9.1
+requests>=2.25.1
+pydig>=0.3.0
