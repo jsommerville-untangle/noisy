@@ -259,6 +259,9 @@ class Crawler(object):
                     logging.debug("found {} links".format(len(self._links)))
                     self._browse_from_links()
 
+            except subprocess.CalledProcessError:
+                logging.warn("An error with the subprocess for URL: %s" % url)
+
             except requests.exceptions.RequestException:
                 logging.warn("Error connecting to root url: {}".format(url))
                 
@@ -271,6 +274,9 @@ class Crawler(object):
             except self.CrawlerTimedOut:
                 logging.info("Timeout has exceeded, exiting")
                 return
+
+            except:
+                logging.warning("Unhandled exception when trying url: %s \n Exception: %s" % (url, sys.exc_info()[0]))
 
 def main():
     parser = argparse.ArgumentParser()
